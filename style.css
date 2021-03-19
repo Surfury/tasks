@@ -75,6 +75,7 @@ button,input[type='button']{
     font-size: 2.5em;
     line-height: 50%;
     background-color:#fff0;
+    color:#43f;
 }
 input[type='text'] {
     background-color: #333;
