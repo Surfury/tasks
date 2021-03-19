@@ -1,0 +1,100 @@
+*{
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+}
+h1,h2{
+    text-align: center;
+}
+:root{
+    --bg-color:#eee;
+    --txt-color:#222;
+}
+  @media (prefers-color-scheme: dark) {
+    body {
+        --bg-color:#121212;
+        --txt-color:#eee;
+    }
+  }
+body{
+    background-color: var(--bg-color);
+    color: #fff;
+    font-family: Poppins;
+}
+header{
+    display: flex;
+    justify-content: space-evenly;
+}
+.hidden{
+    transform: scaleX(0);
+}
+.none{
+    display: none !important;
+}
+div.cover{
+    background-color: #222;
+    display: grid;
+    place-items: center;
+    transition: transform .5s;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index:10;
+    margin: auto;
+}
+div.card{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+@keyframes spin{
+    0%{
+        transform:rotate(0deg);
+    }
+    100%{
+        transform:rotate(360deg);
+    }
+}
+span#spinner{
+    border: 4px solid rgba(0, 0, 0, .1);
+    width: 36px;
+    height: 36px;
+    border-radius:50%;
+    border-left-color:var(--logo-color);
+    animation: spin 1s infinite;
+}
+button,input[type='button']{
+    background-color: #43f;
+    color: #eee;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0 1vh;
+}
+#addTask{
+    padding: 0 3vh;
+    font-size: 2.5em;
+    line-height: 50%;
+}
+input[type='text'] {
+    background-color: #333;
+    color: inherit;
+    font-family: cursive;
+}
+main#tasks{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    width: 90vw;
+    margin: auto;
+}
+#done > div.card > button.done {
+    transform: rotateZ(180deg);
+}
+#pending,#done{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: #222;
+}
+div.card > p {
+    text-align: center;
+    grid-column: 1/3;
+}
