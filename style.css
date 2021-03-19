@@ -73,7 +73,8 @@ button,input[type='button']{
 #addTask{
     padding: 0 3vh;
     font-size: 2.5em;
-    line-height: 50%;
+    line-height: 80%;
+    background-color:#fff0;
 }
 input[type='text'] {
     background-color: #333;
