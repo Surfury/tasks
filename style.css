@@ -50,6 +50,7 @@ div.card{
     background-color: var(--card-color);
     padding: 1vh;
     gap: 1vh;
+    border-radius: 1rem;
 }
 @keyframes spin{
     0%{
@@ -74,6 +75,7 @@ button,input{
     font-size: 1rem;
     padding: 0 1vh;
     transition: opacity .2s;
+    border-radius: 1rem;
 }
 button:disabled {
     opacity: .5;
@@ -111,6 +113,7 @@ main#tasks{
     gap: 1vw 1vh;
     padding: 1rem;
     grid-auto-rows: max-content;
+    border-radius: 1rem;
 }
 div.card > p {
     text-align: center;
