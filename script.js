@@ -1,5 +1,5 @@
 let tasks = [], finishedTasks = [], alltasks = [tasks, finishedTasks];
-/* create new Element and append them */
+/* create new Element, append them and return them*/
 const newNode = (HTMLTag = 'div', parent = eleID('pending')) => {
     let node = document.createElement(HTMLTag);
     parent.appendChild(node);
@@ -39,8 +39,8 @@ const updateTasks = () => {
         supButton.addEventListener('click', (e) => removeTasks(e));
 
         let doneButton = newNode('button', card);
-        doneButton.classList.add('done');
-        doneButton.textContent = '=>';
+        doneButton.classList.add('finished');
+        doneButton.textContent='✔';
         doneButton.addEventListener('click', (e) => changeTasksStatus(e.target));
     });
     if (finishedTasks.length > 0) {
@@ -64,8 +64,8 @@ const updateFinishedTasks = () => {
         supButton.addEventListener('click', (e) => removeTasks(e));
 
         let doneButton = newNode('button', card);
-        doneButton.classList.add('done');
-        doneButton.textContent = '=>';
+        doneButton.classList.add('finished');
+        doneButton.textContent='<-';
         doneButton.addEventListener('click', (e) => changeTasksStatus(e.target));
     });
     if (tasks.length > 0) {
@@ -89,9 +89,9 @@ const changeTasksStatus = E => {
 /* remove the task from the array */
 const removeTasks = (e) => {
     e.target.disabled = 'disabled';
-    console.log(e.target.parentElement.firstElementChild.textContent)
+    console.log(e.target.parentElement.firstElementChild.textContent);
     tasks = tasks.filter((E) => E !== e.target.parentElement.firstElementChild.textContent);
-   finishedTasks =finishedTasks.filter((E) => E !== e.target.parentElement.firstElementChild.textContent);
+   finishedTasks = finishedTasks.filter((E) => E !== e.target.parentElement.firstElementChild.textContent);
     updateTasks();
     updateFinishedTasks();
 }
@@ -116,17 +116,3 @@ if (localStorage.getItem('finishedTasks') !== null) {
     finishedTasks = localStorage.getItem('finishedTasks').split(',');
     updateFinishedTasks();
 }
-/* Order the tasks */
-eleID('sortTasks').addEventListener('click', () => {
-    eleID('sortTasks').disabled = 'disabled';
-    eleID('reverseTasks').removeAttribute('disabled');
-    tasks.sort();
-    updateTasks();
-});
-/* Order the tasks */
-eleID('reverseTasks').addEventListener('click', () => {
-    eleID('reverseTasks').disabled = 'disabled';
-    eleID('sortTasks').removeAttribute('disabled');
-    tasks.reverse();
-    updateTasks();
-});
