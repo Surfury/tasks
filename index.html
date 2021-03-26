@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
     <title>Tasks</title>
 </head>
+
 <body>
+    <input type="button" id="addTask" value="+">
     <div id="cover" class="cover">
         <span id="spinner"></span>
         <div id="newTask" class="none">
@@ -17,17 +20,12 @@
             <button id="addNewTask" disabled='disabled'>ADD</button>
         </div>
     </div>
-    <h1>Tasks</h1>
-    <header>
-        <button id="reverseTasks">Reverse Tasks</button>
-        <input type="button" id="addTask" value="+">
-        <button id="sortTasks">Sort Tasks</button>
-    </header>
+    <h1>Daily Tasks</h1>
     <main id="tasks">
         <div id='pending'></div>
         <div id="done"></div>
-        
     </main>
     <script src="script.js"></script>
 </body>
+
 </html>
