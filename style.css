@@ -50,7 +50,6 @@ div.card{
     background-color: var(--card-color);
     padding: 1vh;
     gap: 1vh;
-    border-radius: 1rem;
 }
 @keyframes spin{
     0%{
