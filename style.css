@@ -13,14 +13,14 @@ h1,h2{
     --secondary-color:#ddd;
     --txt-color:#222;
 }
-  @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     body {
-        --bg-color:#121212;
-        --secondary-color:#222;
-        --txt-color:#eee;
-        --card-color:#333;
+      --bg-color:#121212;
+      --secondary-color:#222;
+      --txt-color:#eee;
+      --card-color:#333;
     }
-  }
+}
 body{
     background-color: var(--bg-color);
     color: var(--txt-color);
@@ -64,17 +64,16 @@ span#spinner{
     width: 36px;
     height: 36px;
     border-radius:50%;
-    border-left-color:var(--logo-color);
+    border-left-color:var(--txt-color);
     animation: spin 1s infinite;
 }
-button,input{
+button,input[type='button']{
     background-color: #43f;
     color: #eee;
     font-family: inherit;
     font-size: 1rem;
     padding: 0 1vh;
     transition: opacity .2s;
-    border-radius: 1rem;
 }
 button:disabled {
     opacity: .5;
@@ -112,7 +111,6 @@ main#tasks{
     gap: 1vw 1vh;
     padding: 1rem;
     grid-auto-rows: max-content;
-    border-radius: 1rem;
 }
 div.card > p {
     text-align: center;
@@ -122,4 +120,14 @@ div.card > p {
     main#tasks{
         grid-template-columns: repeat(1,1fr);
     }
-  }
+}
+#newTask{
+    background: var(--card-color);
+    box-shadow: 0 0 2px;
+}
+input[type='checkbox']{
+    transform: scale(1.5);
+}
+label{
+    padding: 1em;
+}
