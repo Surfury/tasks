@@ -1,118 +1,125 @@
-let tasks = [], finishedTasks = [], alltasks = [tasks, finishedTasks];
-/* create new Element, append them and return them*/
-const newNode = (HTMLTag = 'div', parent = eleID('pending')) => {
-    let node = document.createElement(HTMLTag);
-    parent.appendChild(node);
-    return node;
-}
+/* All VARIABLES WITH "$" AT THE BEGINNING ARE HTMLElements*/
+'use strict';
 const eleID = ID => document.getElementById(ID);
-/* when window get load will do this */
-window.addEventListener('load', () => {
-    eleID('spinner').remove();
-    eleID('cover').classList.add('hidden');
-    eleID('cover').addEventListener('click', (e) => hideCover(e.target));
-    eleID('newTask').classList.remove('none');
-});
-/* measure the length of the text */
-eleID('taskName').addEventListener('input', (e) => {
-    if (e.target.value.length >= 4 && e.target.value.length <= 20)
-        eleID('addNewTask').removeAttribute('disabled');
-    else eleID('addNewTask').disabled = 'disabled';
-});
-const hideCover = E => {
-    if (E === eleID('cover')) eleID('cover').classList.add('hidden');
-}
-const showCover = () => eleID('cover').classList.remove('hidden');
-/*update Tasks*/
-const updateTasks = () => {
-    eleID('pending').innerHTML = '';
-    tasks.forEach(E => {
-        let card = newNode();
-        card.classList.add('card');
-
-        let paragraph = newNode('p', card);
-        paragraph.textContent = E;
-
-        let supButton = newNode('button', card);
-        supButton.textContent = 'x';
-        supButton.classList.add('removeTask');
-        supButton.addEventListener('click', (e) => removeTasks(e));
-
-        let doneButton = newNode('button', card);
-        doneButton.classList.add('finished');
-        doneButton.textContent='✔';
-        doneButton.addEventListener('click', (e) => changeTasksStatus(e.target));
+(() => {
+    let tasks = [], finishedTasks = [], alltasks = [...tasks,...finishedTasks];
+    const $addNewTask = eleID('addNewTask'),
+    $cover = eleID('cover'),
+    $pendingTasks = eleID('pending'),
+    $doneTasks = eleID('done'),
+    $taskName = eleID('taskName');
+    /*create new Element, append them and return them*/
+    const newNode = (HTMLTag = 'div', $parent, txtContent = '', Class) => {
+        const node = document.createElement(HTMLTag);
+        if (txtContent !== undefined)
+            node.textContent = txtContent;
+        /* ADD CLASS IF IT IS DEFINED */
+        if (Class !== undefined)
+            node.classList.add(Class);
+        /* APPEND THE NODE IN THE PARENT NODE (PARAMETER)*/
+        $parent.append(node);
+        return node;
+    }
+    /* when window get load will do this */
+    addEventListener('load', () => {
+        $cover.classList.add('hidden');
+        $cover.addEventListener('click', hideCover);
+        eleID('spinner').remove();
+        setTimeout(() => eleID('newTask').classList.remove('none'), 500);
     });
-    if (finishedTasks.length > 0) {
-        localStorage.setItem('finishedTasks', finishedTasks);
-    } else {
-        localStorage.removeItem('finishedTasks');
-    }
-}
-const updateFinishedTasks = () => {
-    eleID('done').innerHTML = '';
-    finishedTasks.forEach(E => {
-        let card = newNode('div', eleID('done'));
-        card.classList.add('card');
-
-        let paragraph = newNode('p', card);
-        paragraph.textContent = E;
-
-        let supButton = newNode('button', card);
-        supButton.textContent = 'x';
-        supButton.classList.add('removeTask');
-        supButton.addEventListener('click', (e) => removeTasks(e));
-
-        let doneButton = newNode('button', card);
-        doneButton.classList.add('finished');
-        doneButton.textContent='<-';
-        doneButton.addEventListener('click', (e) => changeTasksStatus(e.target));
+    /* measure the length of the text */
+    $taskName.addEventListener('input', function () {
+        if (this.value.length >= 4 && this.value.length <= 20)
+            $addNewTask.removeAttribute('disabled');
+        else $addNewTask.disabled = 'disabled';
     });
-    if (tasks.length > 0) {
-        localStorage.setItem('tasks', tasks);
-    } else {
-        localStorage.removeItem('tasks');
+    function hideCover(event) {
+        if (event.target === cover)
+            this.classList.add('hidden');
     }
-}
-const changeTasksStatus = E => {
-    E.disabled = 'disabled';
-    if (E.parentElement.parentElement === eleID('pending')) {
-        finishedTasks.push(E.parentElement.firstElementChild.textContent);
-        tasks = tasks.filter((Ele) => Ele !== E.parentElement.firstElementChild.textContent);
-    } else {
-        tasks.push(E.parentElement.firstElementChild.textContent);
-        finishedTasks = finishedTasks.filter((Ele) => Ele !== E.parentElement.firstElementChild.textContent);
+    const showCover = () => cover.classList.remove('hidden');
+    /* Render tasks */
+    function tasksRenderer(arr,$parent,finished) {
+        const fragment = document.createDocumentFragment();
+        arr.forEach(E => {
+            const card = newNode(undefined, fragment, undefined, 'card');
+
+            newNode('p', card, E);
+
+            const supButton = newNode('button', card, 'x', 'removeTask');
+            supButton.addEventListener('click', removeTasks);
+
+            const doneButton = (finished === true) ?
+                newNode('button', card, '<-', 'finished') :
+                newNode('button', card, '✔', 'finished');
+            doneButton.addEventListener('click', changeTasksStatus);
+        });
+        $parent.innerHTML = '';
+        $parent.append(fragment);
     }
-    updateTasks();
-    updateFinishedTasks();
-}
-/* remove the task from the array */
-const removeTasks = (e) => {
-    e.target.disabled = 'disabled';
-    console.log(e.target.parentElement.firstElementChild.textContent);
-    tasks = tasks.filter((E) => E !== e.target.parentElement.firstElementChild.textContent);
-   finishedTasks = finishedTasks.filter((E) => E !== e.target.parentElement.firstElementChild.textContent);
-    updateTasks();
-    updateFinishedTasks();
-}
-eleID("addNewTask").addEventListener('click', () => {
-    if (alltasks.filter((E) => E === eleID('taskName').value).length === 0) {
-        eleID('addNewTask').disabled = 'disabled';
-        tasks.push(eleID('taskName').value);
-        hideCover(eleID('cover'));
-        eleID('taskName').value = '';
+    /*update Tasks*/
+    const updateTasks = () => {
+        alltasks = [...tasks, ...finishedTasks];
+        tasksRenderer(tasks,$pendingTasks,false);
+
+        if (tasks.length > 0)
+            localStorage.setItem('tasks', tasks);
+        else
+            localStorage.removeItem('tasks');
+    }
+
+    const updateFinishedTasks = () => {
+        alltasks = [...tasks, ...finishedTasks];
+        tasksRenderer(finishedTasks,$doneTasks,true);
+
+        if (finishedTasks.length > 0)
+            localStorage.setItem('finishedTasks', finishedTasks);
+        else
+            localStorage.removeItem('finishedTasks');
+    }
+
+    function changeTasksStatus() {
+        this.setAttribute('disabled', '');
+        if (this.parentElement.parentElement === $pendingTasks) {
+            finishedTasks.push(this.parentElement.firstElementChild.textContent);
+            tasks = tasks.filter((E) => E !== this.parentElement.firstElementChild.textContent);
+        } else {
+            tasks.push(this.parentElement.firstElementChild.textContent);
+            finishedTasks = finishedTasks.filter((E) => E !== this.parentElement.firstElementChild.textContent);
+        }
         updateTasks();
-    } else {
-        alert('You already added this task');
+        updateFinishedTasks();
     }
-});
-eleID('addTask').addEventListener('click', () => showCover());
-/* update task if it was saved in the localStorage */
-if (localStorage.getItem('tasks') !== null) {
-    tasks = localStorage.getItem('tasks').split(',');
-    updateTasks();
-}
-if (localStorage.getItem('finishedTasks') !== null) {
-    finishedTasks = localStorage.getItem('finishedTasks').split(',');
-    updateFinishedTasks();
-}
+    /* remove the task from the array */
+    function removeTasks() {
+        const taskText = this.parentElement.firstElementChild.textContent;
+        this.setAttribute('disabled', 'disabled');
+        tasks = tasks.filter((E) => E !== taskText);
+        finishedTasks = finishedTasks.filter((E) => E !== taskText);
+        updateTasks();
+        updateFinishedTasks();
+    }
+    $addNewTask.addEventListener('click', () => {
+        if (alltasks.filter((E) => E.toLowerCase() === $taskName.value.toLowerCase()).length === 0) {
+            $addNewTask.setAttribute('disabled', 'disabled');
+            tasks.push($taskName.value);
+            $cover.dispatchEvent(new Event('click'));
+            $taskName.value = '';
+            updateTasks();
+        } else {
+            eleID("taskName").value = '';
+            alert('You already added this task');
+        }
+    });
+    eleID('addTask').addEventListener('click', showCover);
+    /* update task if it was saved in the localStorage */
+    if (localStorage.getItem('tasks') !== null) {
+        tasks = localStorage.getItem('tasks').split(',');
+        updateTasks();
+    }
+    if (localStorage.getItem('finishedTasks') !== null) {
+        finishedTasks = localStorage.getItem('finishedTasks').split(',');
+        updateFinishedTasks();
+    }
+    alltasks = [...tasks, ...finishedTasks];
+})();
