@@ -12,7 +12,7 @@
 
 <body>
     <input type="button" id="addTask" value="+">
-    <div id="cover" class="cover">
+    <div id="cover" class="cover grid">
         <span id="spinner"></span>
         <div id="newTask" class="none">
             <label for="taskName">Task</label>
@@ -20,8 +20,10 @@
             <button id="addNewTask" disabled='disabled'>ADD</button>
         </div>
     </div>
-    <h1>Daily Tasks</h1>
-    <main id="tasks">
+    <header>
+        <h1>Daily Tasks</h1>
+    </header>
+    <main id="tasks" class="grid">
         <div id='pending'></div>
         <div id="done"></div>
     </main>
