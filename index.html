@@ -5,27 +5,31 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet"> -->
+    <!-- fonts -->
     <title>Tasks</title>
 </head>
 
 <body>
-    <input type="button" id="addTask" value="+">
-    <div id="cover" class="cover grid">
-        <span id="spinner"></span>
-        <div id="newTask" class="none">
-            <label for="taskName">Task</label>
-            <input type="text" id="taskName">
-            <button id="addNewTask" disabled='disabled'>ADD</button>
-        </div>
+    <div id="cover" class="cover">
+        <span id="spinner" class="spinner"></span>
+        <form id="form" class="form none" method="POST">
+            <input type="text" name="taskName" id="taskName" placeholder="Do my homework" required>
+            <button id="addNewTask" disabled>ADD</button>
+        </form>
     </div>
     <header>
         <h1>Daily Tasks</h1>
     </header>
-    <main id="tasks" class="grid">
-        <div id='pending'></div>
-        <div id="done"></div>
+    <button id="addTask" class="addTask">+</button>
+    <main id="tasks" class="main">
+        <div id='pending' class="tasks-container pending-tasks"></div>
+        <div id="finished" class="tasks-container finished-tasks"></div>
     </main>
     <script src="script.js"></script>
 </body>
