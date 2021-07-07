@@ -1,125 +1,144 @@
-/* All VARIABLES WITH "$" AT THE BEGINNING ARE HTMLElements*/
 'use strict';
+/* All VARIABLES WITH "$" AT THE BEGINNING ARE HTMLElements*/
+
 const eleID = ID => document.getElementById(ID);
-(() => {
-    let tasks = [], finishedTasks = [], alltasks = [...tasks,...finishedTasks];
-    const $addNewTask = eleID('addNewTask'),
+
+const $addNewTask = eleID('addNewTask'),
     $cover = eleID('cover'),
+    $spinner = eleID('spinner'),
     $pendingTasks = eleID('pending'),
-    $doneTasks = eleID('done'),
-    $taskName = eleID('taskName');
-    /*create new Element, append them and return them*/
-    const newNode = (HTMLTag = 'div', $parent, txtContent = '', Class) => {
-        const node = document.createElement(HTMLTag);
-        if (txtContent !== undefined)
-            node.textContent = txtContent;
-        /* ADD CLASS IF IT IS DEFINED */
-        if (Class !== undefined)
-            node.classList.add(Class);
-        /* APPEND THE NODE IN THE PARENT NODE (PARAMETER)*/
-        $parent.append(node);
-        return node;
-    }
-    /* when window get load will do this */
-    addEventListener('load', () => {
-        $cover.classList.add('hidden');
-        $cover.addEventListener('click', hideCover);
-        eleID('spinner').remove();
-        setTimeout(() => eleID('newTask').classList.remove('none'), 500);
+    $finishedTasks = eleID('finished'),
+    $taskName = eleID('taskName'),
+    $form = eleID('form'),
+    $addTask = eleID('addTask'),
+    $tasks = eleID('tasks');
+
+let tasks = [];
+/* when window get load will do this */
+document.addEventListener('DOMContentLoaded', () => {
+    $cover.classList.add('hidden');
+    $cover.addEventListener('click', hideCover);
+    $spinner.remove();
+    setTimeout(() => $form.classList.remove('none'), 500);
+});
+/*create new Element, append them and return them*/
+const newNode = ({ HTMLTag = 'div', $parent, txtContent = '', classes = [] }) => {
+    const $node = document.createElement(HTMLTag);
+    $node.textContent = txtContent;
+    /* ADD CLASS IF IT IS DEFINED */
+    if (classes.length !== 0)
+        classes.forEach((E) => $node.classList.add(E));
+    /* APPEND THE NODE IN THE PARENT NODE (PARAMETER)*/
+    $parent.appendChild($node);
+    return $node;
+}
+
+$tasks.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', e.target.dataset.index));
+
+$tasks.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (e.target === $finishedTasks || e.target === $pendingTasks)
+        e.target.classList.add('target');
+});
+
+$tasks.addEventListener('dragleave', (e) => e.target.classList.remove('target'));
+
+$tasks.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.target.classList.remove('target');
+    const index = parseInt(e.dataTransfer.getData('text'));
+    tasks[index].isFinished = (e.target === $finishedTasks) ? true : false;
+    updateTasks();
+});
+
+/* Measure the length of the text */
+$taskName.addEventListener('input', function () {
+    (this.value.length >= 4 && this.value.length <= 25) ?
+        $addNewTask.removeAttribute('disabled') : $addNewTask.setAttribute('disabled', '');
+});
+function hideCover(e) {
+    if (e.target === $cover)
+        this.classList.add('hidden');
+}
+const showCover = () => $cover.classList.remove('hidden');
+/* Render tasks */
+const tasksRenderer = () => {
+    const [pendingTasksFragment, finishedTasksFragment] = [document.createDocumentFragment(), document.createDocumentFragment()];
+
+    tasks.forEach((E) => {
+        const isFinished = E.isFinished;
+        const $card = newNode({ $parent: (isFinished) ? finishedTasksFragment : pendingTasksFragment, classes: ['card'] });
+        $card.setAttribute('draggable', true);
+        $card.dataset.index = E.index;
+
+        newNode({ HTMLTag: 'p', $parent: $card, txtContent: E.name });
+        newNode({ HTMLTag: 'button', $parent: $card, txtContent: 'x', classes: ['remove','button'] });
+        newNode({ HTMLTag: 'button', $parent: $card, txtContent: (isFinished) ? '←' : '✔', classes: ['finish','button'] });
     });
-    /* measure the length of the text */
-    $taskName.addEventListener('input', function () {
-        if (this.value.length >= 4 && this.value.length <= 20)
-            $addNewTask.removeAttribute('disabled');
-        else $addNewTask.disabled = 'disabled';
-    });
-    function hideCover(event) {
-        if (event.target === cover)
-            this.classList.add('hidden');
+    $pendingTasks.textContent = null;
+    $finishedTasks.textContent = null;
+
+    $pendingTasks.append(pendingTasksFragment);
+    $finishedTasks.append(finishedTasksFragment);
+}
+const createTasks = (name) => {
+    return {
+        index: tasks.length,
+        name: name,
+        isFinished: false
     }
-    const showCover = () => cover.classList.remove('hidden');
-    /* Render tasks */
-    function tasksRenderer(arr,$parent,finished) {
-        const fragment = document.createDocumentFragment();
-        arr.forEach(E => {
-            const card = newNode(undefined, fragment, undefined, 'card');
+}
+/*update Tasks*/
+const updateTasks = () => {
+    tasksRenderer();
+    (tasks.length >= 1) ? localStorage.setItem('tasks', JSON.stringify(tasks)) : localStorage.removeItem('tasks');
+}
 
-            newNode('p', card, E);
+function changeTaskStatus(index) {
+    const $card = this.parentElement;
+    tasks[index].isFinished = (tasks[index].isFinished) ? false : true;
+    updateTasks();
+}
+/* remove the task from the array */
+const removeElement = (element) => tasks.filter((E) => E.name !== element);
 
-            const supButton = newNode('button', card, 'x', 'removeTask');
-            supButton.addEventListener('click', removeTasks);
+$form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const taskName = $taskName.value.trim();
 
-            const doneButton = (finished === true) ?
-                newNode('button', card, '<-', 'finished') :
-                newNode('button', card, '✔', 'finished');
-            doneButton.addEventListener('click', changeTasksStatus);
-        });
-        $parent.innerHTML = '';
-        $parent.append(fragment);
-    }
-    /*update Tasks*/
-    const updateTasks = () => {
-        alltasks = [...tasks, ...finishedTasks];
-        tasksRenderer(tasks,$pendingTasks,false);
+    const isNew = tasks.filter((E) => E.name === taskName).length === 0;
+    const isValid = (taskName.length > 4) ? true : false;
 
-        if (tasks.length > 0)
-            localStorage.setItem('tasks', tasks);
-        else
-            localStorage.removeItem('tasks');
-    }
+    if (isNew && isValid) {
+        $addNewTask.setAttribute('disabled', '');
+        $cover.dispatchEvent(new Event('click'));
+        tasks.push(createTasks(taskName));
+        updateTasks();
+    } else
+    alert('You already added this task');
+    $taskName.value = '';
+});
 
-    const updateFinishedTasks = () => {
-        alltasks = [...tasks, ...finishedTasks];
-        tasksRenderer(finishedTasks,$doneTasks,true);
+$addTask.addEventListener('click', showCover);
 
-        if (finishedTasks.length > 0)
-            localStorage.setItem('finishedTasks', finishedTasks);
-        else
-            localStorage.removeItem('finishedTasks');
-    }
+[$finishedTasks, $pendingTasks].forEach((E) => {
+    E.addEventListener('click', (e) => {
+        const $E = e.target;
+        if ($E.parentElement.classList.contains('card')) {
+            const index = parseInt($E.parentElement.dataset.index);
+            const taskText = $E.parentElement.firstElementChild.textContent;
 
-    function changeTasksStatus() {
-        this.setAttribute('disabled', '');
-        if (this.parentElement.parentElement === $pendingTasks) {
-            finishedTasks.push(this.parentElement.firstElementChild.textContent);
-            tasks = tasks.filter((E) => E !== this.parentElement.firstElementChild.textContent);
-        } else {
-            tasks.push(this.parentElement.firstElementChild.textContent);
-            finishedTasks = finishedTasks.filter((E) => E !== this.parentElement.firstElementChild.textContent);
+            if ($E.classList.contains('remove')) {
+                $E.parentElement.remove();
+                tasks = removeElement(taskText);
+                updateTasks();
+            } else if ($E.classList.contains('finish'))
+                changeTaskStatus.call($E, index);
         }
-        updateTasks();
-        updateFinishedTasks();
-    }
-    /* remove the task from the array */
-    function removeTasks() {
-        const taskText = this.parentElement.firstElementChild.textContent;
-        this.setAttribute('disabled', 'disabled');
-        tasks = tasks.filter((E) => E !== taskText);
-        finishedTasks = finishedTasks.filter((E) => E !== taskText);
-        updateTasks();
-        updateFinishedTasks();
-    }
-    $addNewTask.addEventListener('click', () => {
-        if (alltasks.filter((E) => E.toLowerCase() === $taskName.value.toLowerCase()).length === 0) {
-            $addNewTask.setAttribute('disabled', 'disabled');
-            tasks.push($taskName.value);
-            $cover.dispatchEvent(new Event('click'));
-            $taskName.value = '';
-            updateTasks();
-        } else {
-            eleID("taskName").value = '';
-            alert('You already added this task');
-        }
-    });
-    eleID('addTask').addEventListener('click', showCover);
-    /* update task if it was saved in the localStorage */
-    if (localStorage.getItem('tasks') !== null) {
-        tasks = localStorage.getItem('tasks').split(',');
-        updateTasks();
-    }
-    if (localStorage.getItem('finishedTasks') !== null) {
-        finishedTasks = localStorage.getItem('finishedTasks').split(',');
-        updateFinishedTasks();
-    }
-    alltasks = [...tasks, ...finishedTasks];
-})();
+    })
+});
+/* update tasks if it was saved in the localStorage */
+if (localStorage.tasks) {
+    tasks = JSON.parse(localStorage.tasks);
+    updateTasks();
+}
